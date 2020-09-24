@@ -1,16 +1,22 @@
-.auth
-  ul
-    - if @session.has_key? :userinfo
-      .greeting Welcome, #{@userinfo.preferred_username}
-      li
-        a href="/lobby" Lobby
-      li
-        a href="/logout" Logout
-    - else
-      li
-        a href="/login" Login
-    li
-      a href="/" Home
-
-.main
-  == yield
+html
+  head
+    title Space Ring Things Lobby
+    meta charset="utf-8"
+    script src="https://code.jquery.com/jquery-3.5.1.min.js"
+  body
+    .auth
+      ul
+        - if @session.has_key? :userinfo
+          .greeting Welcome, #{@userinfo.preferred_username}
+          li
+            a href="/lobby" Lobby
+          li
+            a href="/logout" Logout
+        - else
+          li
+            a href="/login" Login
+        li
+          a href="/" Home
+    
+    .main
+      == yield

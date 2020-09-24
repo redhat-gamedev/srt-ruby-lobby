@@ -75,6 +75,18 @@ class App < Sinatra::Base
     redirect to(logout_url)
   end
 
+  get '/chat', provides: 'text/event-stream' do
+    stream :keep_open do |out|
+      settings.connections << out
+      out.callback { settings.connections.delete(out) }
+    end
+  end
+
+  post '/chat-message' do
+    settings.connections.each { |out| out << "data: #{params[:msg]}\n\n" }
+    204 # response without entity body
+  end
+
   private
 
   def get_oauth_client

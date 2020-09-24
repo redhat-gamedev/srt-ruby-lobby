@@ -1,1 +1,23 @@
 h1 lobby
+#send-message
+  form#message-form action="/chat-message"
+    input#chat-message name='message' value=''
+    input#chat-submit type='submit' value='Send Message'
+hr
+#chat
+javascript:
+  // inspired by https://gist.github.com/rkh/1476463
+  // reading
+  var es = new EventSource('/chat');
+  es.onmessage = function(e) {
+    to_append = "<div>" + e.data + "</div>"
+    $('#chat').append(to_append)
+  };
+
+  // writing
+  $("#message-form").on("submit", function(e) {
+    $.post('/chat-message', {msg: "#{@userinfo.preferred_username}: " + $('#chat-message').val()});
+    $('#chat-message').val(''); 
+    $('#chat-message').focus();
+    e.preventDefault();
+  });

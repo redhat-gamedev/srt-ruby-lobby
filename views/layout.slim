@@ -1,0 +1,16 @@
+.auth
+  ul
+    - if @session.has_key? :userinfo
+      .greeting Welcome, #{@userinfo.preferred_username}
+      li
+        a href="/lobby" Lobby
+      li
+        a href="/logout" Logout
+    - else
+      li
+        a href="/login" Login
+    li
+      a href="/" Home
+
+.main
+  == yield

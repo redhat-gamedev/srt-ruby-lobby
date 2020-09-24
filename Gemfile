@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gem 'sinatra'
+gem 'sinatra-contrib'
+gem 'thin'
+gem 'pry'
+gem 'pry-byebug'
+gem 'slim'
+gem 'openid_connect'
+gem 'httparty'

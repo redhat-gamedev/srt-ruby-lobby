@@ -1,0 +1,31 @@
+{
+// Basic settings: turn linter(s) on
+"ruby.lint": {
+    "reek": true,
+    "rubocop": true,
+    "ruby": true, //Runs ruby -wc
+    "fasterer": false,
+    "debride": false,
+    "ruby-lint": false
+},
+
+// Time (ms) to wait after keypress before running enabled linters. Ensures
+// linters are only run when typing has finished and not for every keypress
+"ruby.lintDebounceTime": 500,
+
+"ruby.intellisense": "rubyLocate",
+
+"vim.hlsearch": true,
+//advanced: set command line options for some linters:
+//"ruby.lint": {
+//    "ruby": {
+//        "unicode": true //Runs ruby -wc -Ku
+//    },
+//    "rubocop": {
+//        "only": ["SpaceInsideBlockBraces", "LeadingCommentSpace"],
+//        "lint": true,
+//        "rails": true
+//    },
+//    "reek": true
+//}
+}

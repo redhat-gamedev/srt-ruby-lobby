@@ -1,0 +1,11 @@
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  name: srt-sso
+  labels:
+    app: sso
+  namespace: auth
+spec:
+  externalAccess:
+    enabled: true
+  instances: 1

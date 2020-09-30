@@ -27,6 +27,7 @@ GEM
       activesupport (>= 4.2)
       aes_key_wrap
       bindata
+    jwt (2.2.2)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (1.0.0)
@@ -109,6 +110,7 @@ PLATFORMS
 
 DEPENDENCIES
   httparty
+  jwt
   openid_connect
   pry
   pry-byebug

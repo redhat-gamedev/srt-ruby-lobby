@@ -6,17 +6,25 @@ h1 lobby
 hr
 #chat
 javascript:
-  // inspired by https://gist.github.com/rkh/1476463
+
+  // amqp / rhea initialization
+  var server = "#{ENV['broker']}"
+  var client = require("rhea");
+  var ws = client.websocket_connect(WebSocket);
+  var connection = client.connect({"connection_details":ws(server, ["binary", "AMQPWSB10", "amqp"]), "reconnect":false});
+  connection.open_receiver("lobby-general");
+  var sender = connection.open_sender("lobby-general");  
+  
   // reading
-  var es = new EventSource('/chat');
-  es.onmessage = function(e) {
-    to_append = "<div>" + e.data + "</div>"
+  client.on("message", function (context) {
+    to_append = "<div>" + context.message.body + "</div>"
     $('#chat').append(to_append)
-  };
+  });
 
   // writing
   $("#message-form").on("submit", function(e) {
-    $.post('/chat-message', {msg: "#{@userinfo.preferred_username}: " + $('#chat-message').val()});
+    sender.send({ "body": "#{@userinfo.preferred_username}: " + $('#chat-message').val()});    
+    //$.post('/chat-message', {msg: "#{@userinfo.preferred_username}: " + $('#chat-message').val()});
     $('#chat-message').val(''); 
     $('#chat-message').focus();
     e.preventDefault();

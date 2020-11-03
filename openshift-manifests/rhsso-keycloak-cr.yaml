@@ -4,7 +4,7 @@ metadata:
   name: srt-sso
   labels:
     app: sso
-  namespace: auth
+  namespace: srt
 spec:
   externalAccess:
     enabled: true

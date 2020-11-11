@@ -1,0 +1,11 @@
+apiVersion: infinispan.org/v2alpha1
+kind: Cache
+metadata:
+  name: playerdata 
+spec:
+  adminAuth: 
+    secretName: playerdata-jdg-auth
+  clusterName: gamedata 
+  name: playerdata 
+  templateName: org.infinispan.REPL_SYNC 
+

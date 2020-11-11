@@ -1,8 +1,8 @@
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  name: auth
-  namespace: auth
+  name: srt
+  namespace: srt
 spec:
   targetNamespaces:
-  - auth
+  - srt

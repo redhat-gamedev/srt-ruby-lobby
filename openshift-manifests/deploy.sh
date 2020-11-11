@@ -1,5 +1,20 @@
 #!/bin/bash
 oc create -f project.yaml
-oc create -f rhsso-operatorgroup.yaml
-oc create -f rhsso-operator-subscription.yaml
-oc create -f rhsso-keycloak-cr.yaml
+oc apply -f operatorgroup.yaml
+
+# create subscriptions
+oc apply -f rhsso-operator-subscription.yaml
+oc apply -f amq-operator-subscription.yaml
+oc apply -f jdg-operator-subscription.yaml
+
+sleep 15
+
+# create the jdg secrets
+oc apply -f jdg-credentials-secret.yaml
+oc apply -f jdg-playerdata-credentials.yaml
+
+# need to wait for the crds to exist
+oc apply -f rhsso-keycloak-cr.yaml
+oc apply -f amq-broker-cr.yaml
+oc apply -f jdg-cluster-cr.yaml
+oc apply -f jdg-playerdata-cache.yaml

@@ -1,12 +1,12 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: rhsso-operator
-  namespace: srt 
+  name: datagrid
+  namespace: srt
 spec:
-  channel: alpha
+  channel: 8.1.x
   installPlanApproval: Automatic
-  name: rhsso-operator
+  name: datagrid
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: rhsso-operator.7.4.3
+  startingCSV: datagrid-operator.v8.1.1

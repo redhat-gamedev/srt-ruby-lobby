@@ -1,0 +1,14 @@
+apiVersion: infinispan.org/v1
+kind: Infinispan
+metadata:
+  name: gamedata
+  namespace: srt
+spec:
+  expose:
+    type: Route
+  replicas: 1
+  security:
+    endpointSecretName: gamedata-jdg-credentials
+  service:
+    replicationFactor: 2
+    type: DataGrid

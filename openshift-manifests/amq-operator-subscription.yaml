@@ -1,12 +1,12 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: rhsso-operator
-  namespace: srt 
+  name: amq-broker
+  namespace: srt
 spec:
-  channel: alpha
+  channel: current
   installPlanApproval: Automatic
-  name: rhsso-operator
+  name: amq-broker
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: rhsso-operator.7.4.3
+  startingCSV: amq-broker-operator.v0.17.0

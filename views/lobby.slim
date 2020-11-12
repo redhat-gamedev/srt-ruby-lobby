@@ -11,12 +11,14 @@ javascript:
   var server = "#{ENV['broker']}"
   var client = require("rhea");
   var ws = client.websocket_connect(WebSocket);
-  var connection = client.connect({"connection_details":ws(server, ["binary", "AMQPWSB10", "amqp"]), "reconnect":false});
-  connection.open_receiver("lobby-general");
-  var sender = connection.open_sender("lobby-general");  
+  var connection = client.connect(
+    {"connection_details":ws(server, ["amqp"])
+    });
+  var receiver = connection.open_receiver("lobby");
+  var sender = connection.open_sender("lobby");  
   
   // reading
-  client.on("message", function (context) {
+  receiver.on("message", function (context) {
     to_append = "<div>" + context.message.body + "</div>"
     $('#chat').append(to_append)
   });

@@ -1,9 +1,12 @@
 h1 lobby
+hr
+  .player-info
+    = session[:playerdata].to_s
+hr
 #send-message
   form#message-form action="/chat-message"
     input#chat-message name='message' value=''
     input#chat-submit type='submit' value='Send Message'
-hr
 #chat
 javascript:
 

@@ -12,6 +12,8 @@ class App < Sinatra::Base
   set :secret, ENV['secret']
   set :prefix, '/auth/realms/srt/protocol/openid-connect'
   set :lobby, ENV['lobby']
+  set :datagrid_endpoint, ENV['datagrid_endpoint']
+  set :datagrid_password, ENV['datagrid_password']
 
   set server: 'thin', connections: []
   enable :sessions
@@ -33,6 +35,7 @@ class App < Sinatra::Base
     validate_session(session)
     @session = session
     @userinfo = session[:userinfo]
+    set_playerdata(@userinfo.preferred_username)
     slim :lobby
   end
 
@@ -137,5 +140,42 @@ class App < Sinatra::Base
 
     puts "user #{session[:userinfo].preferred_username} refresh expires "\
       "#{Time.at(JWT.decode(session[:refresh_token], nil, false)[0]['exp'])}"
+  end
+
+  def set_playerdata(user)
+    # talk to the data grid to verify whether the user has an account or not
+    # and, if not, create one
+    auth = {:username => 'developer', :password => settings.datagrid_password}
+
+    base_cache = '/rest/v2/caches/playerdata/'
+
+    uri_string = "#{settings.datagrid_endpoint}#{base_cache}#{user}"
+
+    player_data_response =
+      HTTParty.get(uri_string,
+                   basic_auth: auth,
+                   verify: false)
+
+    session[:playerdata] =
+      if player_data_response.code >= 400 && player_data_response.code < 500
+        # 4xx indicates the player data wasn't found
+        # we will need to do something to figure out the state of the game universe
+        # to figure out how to initialize the player when nothing is found
+        default_player =
+          { 'position' => { 'x' => 0, 'y' => 0 },
+            'ship' => { 'velocity' => 0, 'heading' => 0, 'weapon_power' => 1, 'hit_points' => 100 } }
+
+        # need to add logic to handle problems here
+        response =
+          HTTParty.put(uri_string,
+                       basic_auth: auth,
+                       verify: false,
+                       headers: {'Content-Type' => 'application/json'},
+                       body: default_player.to_json)
+
+        session[:playerdata] = default_player
+      else
+        session[:playerdata] = JSON.parse(player_data_response.body)
+      end
   end
 end

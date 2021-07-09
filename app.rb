@@ -8,12 +8,23 @@ require 'jwt'
 
 class App < Sinatra::Base
   # relevant variables from environment
-  set :host, ENV['host']
+
+  # the public hostname of the SSO route, without http(s)
+  set :host, ENV['sso_host']
+
+  # the secret of the SSO client chosen
   set :secret, ENV['secret']
+
+  # this is assuming a realm called srt but should probably be
+  # variable-ized
   set :prefix, '/auth/realms/srt/protocol/openid-connect'
-  set :lobby, ENV['lobby']
-  set :datagrid_endpoint, ENV['datagrid_endpoint']
-  set :datagrid_password, ENV['datagrid_password']
+
+  # the full URL of the lobby route
+  set :lobby, ENV['lobby_route_url']
+
+  # the name of the datagrid cache endpoint for player data
+  set :datagrid_endpoint, ENV['datagrid_playerdata_endpoint']
+  set :datagrid_password, ENV['datagrid_playerdata_password']
 
   set server: 'thin', connections: []
   enable :sessions

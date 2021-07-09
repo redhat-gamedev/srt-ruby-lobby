@@ -9,12 +9,18 @@ spec:
       name: amqp
       port: 5672
       protocols: amqp
+    - expose: true
+      name: stomp
+      port: 5673
+      protocols: stomp
   console:
     expose: true
   deploymentPlan:
-    image: 'registry.redhat.io/amq7/amq-broker:7.5'
-    messageMigration: true
     size: 1
-  upgrades:
-    enabled: false
-    minor: false
+    persistenceEnabled: false
+    requireLogin: false
+    messageMigration: true
+    managementRBACEnabled: true
+    journalType: nio
+    jolokiaAgentEnabled: false
+    image: placeholder

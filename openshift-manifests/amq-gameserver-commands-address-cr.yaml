@@ -1,0 +1,9 @@
+apiVersion: broker.amq.io/v2alpha1
+kind: ActiveMQArtemisAddress
+metadata:
+  name: gameserver-commands
+  namespace: srt
+spec:
+  addressName: COMMAND.IN
+  queueName: COMMAND.IN
+  routingType: multicast

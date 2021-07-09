@@ -165,7 +165,7 @@ class App < Sinatra::Base
   def set_playerdata(user)
     # talk to the data grid to verify whether the user has an account or not
     # and, if not, create one
-    auth = {:username => 'developer', :password => settings.datagrid_password}
+    auth = { username: 'developer', password: settings.datagrid_password }
 
     base_cache = '/rest/v2/caches/playerdata/'
 
@@ -181,6 +181,9 @@ class App < Sinatra::Base
         # 4xx indicates the player data wasn't found
         # we will need to do something to figure out the state of the game universe
         # to figure out how to initialize the player when nothing is found
+
+        # TODO: this can't live in the webclient because a malicious user could
+        # easily change these values
         default_player =
           { 'position' => { 'x' => 0, 'y' => 0 },
             'ship' => { 'velocity' => 0, 'heading' => 0, 'weapon_power' => 1, 'hit_points' => 100 } }

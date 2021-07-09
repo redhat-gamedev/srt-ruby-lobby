@@ -11,7 +11,7 @@ hr
 javascript:
 
   // amqp / rhea initialization
-  var server = "#{ENV['broker']}"
+  var server = "#{settings.broker}"
   var client = require("rhea");
   var ws = client.websocket_connect(WebSocket);
   var connection = client.connect(

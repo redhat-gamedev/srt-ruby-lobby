@@ -22,9 +22,9 @@ class App < Sinatra::Base
   # the full URL of the lobby route
   set :lobby, ENV['lobby_route_url']
 
-  # the hostname of the broker AMQP route so that the web client can communicate
-  # via rhea.js - without http(s)
-  set :broker, ENV['broker_amqp_host']
+  # the websocket url of the broker AMQP route so that the web client can communicate
+  # via rhea.js - requires ws:// or wss://
+  set :broker, ENV['broker_amqp_ws_url']
 
   # the name of the datagrid cache endpoint for player data
   # will look something like https://gamedata:11222 where 'gamedata' is

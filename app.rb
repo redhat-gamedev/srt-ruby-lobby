@@ -36,7 +36,7 @@ class App < Sinatra::Base
   set :datagrid_password, ENV['datagrid_password']
 
   set server: 'thin', connections: []
-  enable :sessions
+  use Rack::Session::Pool
 
   configure :development do
     require 'pry'
@@ -55,7 +55,7 @@ class App < Sinatra::Base
     validate_session(session)
     @session = session
     @userinfo = session[:userinfo]
-    set_playerdata(@userinfo.preferred_username)
+    # set_playerdata(@userinfo.preferred_username)
     slim :lobby
   end
 
@@ -157,6 +157,7 @@ class App < Sinatra::Base
     session[:logout_url] = "https://#{settings.host}#{settings.prefix}/logout?redirect_uri=#{redirect_uri}"
     session[:userinfo] = access_token.userinfo!
     session[:refresh_token] = access_token.refresh_token
+    session[:access_token] = access_token.access_token
 
     puts "user #{session[:userinfo].preferred_username} refresh expires "\
       "#{Time.at(JWT.decode(session[:refresh_token], nil, false)[0]['exp'])}"

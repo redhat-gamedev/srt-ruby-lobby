@@ -5,6 +5,7 @@ require 'sinatra/reloader'
 require 'openid_connect'
 require 'httparty'
 require 'jwt'
+require 'pry'
 
 class App < Sinatra::Base
   # relevant variables from environment
@@ -44,6 +45,9 @@ class App < Sinatra::Base
   end
 
   get '/' do
+    unless session.empty?
+      validate_session(session)
+    end
     @session = session
     if @session.has_key? :userinfo
       @userinfo = @session[:userinfo]
@@ -84,7 +88,7 @@ class App < Sinatra::Base
   end
 
   get '/logout' do
-    puts "logging out #{session[:userinfo]["preferred_username"]}"
+    puts "logging out #{session[:userinfo].preferred_username}"
     logout_url = session[:logout_url]
     session.delete(:logout_url)
     session.delete(:userinfo)
@@ -111,6 +115,12 @@ class App < Sinatra::Base
   end
 
   def validate_session(session)
+    # check if we're already at / and, if we are, simply return
+    # this avoids an infinite redirect loop in certain cases
+    if request.env["REQUEST_URI"] == '/'
+      return
+    end
+
     # if no session data, redirect to homepage
     # probably want some kind of flash message
     unless (session.key? :userinfo) &&
@@ -144,7 +154,13 @@ class App < Sinatra::Base
   def refresh_access(refresh_token)
     auth_client = oauth_client
     auth_client.refresh_token = refresh_token
-    access_token = auth_client.access_token! # => OpenIDConnect::AccessToken
+    begin
+      access_token = auth_client.access_token! # => OpenIDConnect::AccessToken
+    rescue Rack::OAuth2::Client::Error => e
+      if (e.response[:error] == 'invalid_grant')
+        return
+      end
+    end
     update_session(access_token)
   end
 

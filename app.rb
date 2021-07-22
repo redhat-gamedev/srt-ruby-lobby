@@ -5,6 +5,7 @@ require 'sinatra/reloader'
 require 'openid_connect'
 require 'httparty'
 require 'jwt'
+require 'pry'
 
 class App < Sinatra::Base
   # relevant variables from environment
@@ -36,7 +37,7 @@ class App < Sinatra::Base
   set :datagrid_password, ENV['datagrid_password']
 
   set server: 'thin', connections: []
-  enable :sessions
+  use Rack::Session::Pool
 
   configure :development do
     require 'pry'
@@ -44,6 +45,9 @@ class App < Sinatra::Base
   end
 
   get '/' do
+    unless session.empty?
+      validate_session(session)
+    end
     @session = session
     if @session.has_key? :userinfo
       @userinfo = @session[:userinfo]
@@ -55,7 +59,7 @@ class App < Sinatra::Base
     validate_session(session)
     @session = session
     @userinfo = session[:userinfo]
-    set_playerdata(@userinfo.preferred_username)
+    # set_playerdata(@userinfo.preferred_username)
     slim :lobby
   end
 
@@ -84,7 +88,7 @@ class App < Sinatra::Base
   end
 
   get '/logout' do
-    puts "logging out #{session[:userinfo]["preferred_username"]}"
+    puts "logging out #{session[:userinfo].preferred_username}"
     logout_url = session[:logout_url]
     session.delete(:logout_url)
     session.delete(:userinfo)
@@ -111,6 +115,12 @@ class App < Sinatra::Base
   end
 
   def validate_session(session)
+    # check if we're already at / and, if we are, simply return
+    # this avoids an infinite redirect loop in certain cases
+    if request.env["REQUEST_URI"] == '/'
+      return
+    end
+
     # if no session data, redirect to homepage
     # probably want some kind of flash message
     unless (session.key? :userinfo) &&
@@ -144,7 +154,13 @@ class App < Sinatra::Base
   def refresh_access(refresh_token)
     auth_client = oauth_client
     auth_client.refresh_token = refresh_token
-    access_token = auth_client.access_token! # => OpenIDConnect::AccessToken
+    begin
+      access_token = auth_client.access_token! # => OpenIDConnect::AccessToken
+    rescue Rack::OAuth2::Client::Error => e
+      if (e.response[:error] == 'invalid_grant')
+        return
+      end
+    end
     update_session(access_token)
   end
 
@@ -157,6 +173,7 @@ class App < Sinatra::Base
     session[:logout_url] = "https://#{settings.host}#{settings.prefix}/logout?redirect_uri=#{redirect_uri}"
     session[:userinfo] = access_token.userinfo!
     session[:refresh_token] = access_token.refresh_token
+    session[:access_token] = access_token.access_token
 
     puts "user #{session[:userinfo].preferred_username} refresh expires "\
       "#{Time.at(JWT.decode(session[:refresh_token], nil, false)[0]['exp'])}"
@@ -165,7 +182,7 @@ class App < Sinatra::Base
   def set_playerdata(user)
     # talk to the data grid to verify whether the user has an account or not
     # and, if not, create one
-    auth = {:username => 'developer', :password => settings.datagrid_password}
+    auth = { username: 'developer', password: settings.datagrid_password }
 
     base_cache = '/rest/v2/caches/playerdata/'
 
@@ -181,6 +198,9 @@ class App < Sinatra::Base
         # 4xx indicates the player data wasn't found
         # we will need to do something to figure out the state of the game universe
         # to figure out how to initialize the player when nothing is found
+
+        # TODO: this can't live in the webclient because a malicious user could
+        # easily change these values
         default_player =
           { 'position' => { 'x' => 0, 'y' => 0 },
             'ship' => { 'velocity' => 0, 'heading' => 0, 'weapon_power' => 1, 'hit_points' => 100 } }
